@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Free Crunchyroll</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #212121; color: #fff; text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; box-sizing: border-box;}
+        h2 { color: #f47521; margin-bottom: 10px; }
+        p { color: #aaa; margin-bottom: 30px; }
+        .btn { background-color: #f47521; color: white; padding: 18px 40px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; max-width: 300px; box-shadow: 0 4px 15px rgba(244, 117, 33, 0.4); transition: transform 0.2s; }
+        .btn:active { transform: scale(0.98); }
+        .hidden { display: none; }
+        #account-box { margin-top: 20px; padding: 20px; background: #333; border-radius: 12px; width: 100%; max-width: 300px; border: 1px solid #444; }
+        #creds { font-family: monospace; font-size: 1.2em; color: #fff; background: #222; padding: 10px; border-radius: 6px; margin: 15px 0; border: 1px dashed #555; word-break: break-all; }
+        .copy-btn { background: #444; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+    </style>
+    
+    </head>
+<body>
+
+    <div id="main-content">
+        <h2>D-TECH Rewards</h2>
+        <p>Watch a short ad to generate a Premium Account.</p>
+
+        <button class="btn" onclick="showAd()">Unlock Account</button>
+        <div id="status" style="margin-top:10px; font-size: 14px; color: #777;"></div>
+    </div>
+
+    <div id="account-box" class="hidden">
+        <p style="margin-bottom: 5px; font-size: 14px;">Your Premium Account:</p>
+        <div id="creds">...</div>
+        <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        <br><br>
+        <button class="btn" onclick="location.reload()" style="background:#444; font-size:14px; padding:10px;">Get Another</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); 
+
+        function showAd() {
+            document.getElementById("status").innerText = "Loading Ad...";
+            
+            // --- AD LOGIC START ---
+            // If using Moneytag, insert their show function here.
+            // For now, we simulate a 3 second ad
+            
+            setTimeout(() => {
+                fetchAccount();
+            }, 3000); 
+            // --- AD LOGIC END ---
+        }
+
+        async function fetchAccount() {
+            document.getElementById("status").innerText = "Generating...";
+            
+            try {
+                // Call your Python Server
+                const response = await fetch('/api/get-account');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById("main-content").classList.add("hidden");
+                    document.getElementById("account-box").classList.remove("hidden");
+                    document.getElementById("creds").innerText = data.account;
+                } else {
+                    document.getElementById("status").innerText = "Error: " + data.error;
+                }
+            } catch (e) {
+                document.getElementById("status").innerText = "Server Error. Try again later.";
+            }
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('creds').innerText;
+            navigator.clipboard.writeText(text);
+            tg.showPopup({ title: 'Copied!', message: 'Account copied to clipboard.', buttons: [{type: 'ok'}] });
+        }
+    </script>
+</body>
+</html>
