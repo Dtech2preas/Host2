@@ -2,576 +2,217 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>D-TECH Premium Rewards</title>
-    <!-- Moneytag SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='10266375' data-sdk='show_10266375'></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Telegram Video Downloader</title>
+    
+    <!-- Telegram WebApp Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js for logic -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        /* Telegram Theme Adaptation */
         :root {
-            --primary: #007bff;
-            --secondary: #0056b3;
-            --bg-color: #0d0d0d;
-            --card-bg: #1a1a1a;
-            --text-color: #e0e0e0;
-            --accent: #2196f3;
-            --success: #28a745;
+            --tg-bg: var(--tg-theme-bg-color, #ffffff);
+            --tg-text: var(--tg-theme-text-color, #000000);
+            --tg-hint: var(--tg-theme-hint-color, #999999);
+            --tg-link: var(--tg-theme-link-color, #2481cc);
+            --tg-button: var(--tg-theme-button-color, #3390ec);
+            --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
+            --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
         }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
+            background-color: var(--tg-bg);
+            color: var(--tg-text);
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        header {
-            margin-bottom: 20px;
-            text-align: center;
+        .input-box {
+            background-color: var(--tg-secondary-bg);
+            color: var(--tg-text);
         }
 
-        h1 {
-            color: var(--primary);
-            margin: 0;
-            font-size: 28px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-        }
-
-        h3 {
-            color: #888;
-            font-weight: 300;
-            margin-top: 5px;
-            font-size: 14px;
-        }
-
-        #stats-bar {
-            background: var(--card-bg);
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: 1px solid #333;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            font-size: 14px;
-        }
-
-        #stats-bar span {
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 400px;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            border: 1px solid #2a2a2a;
-            text-align: center;
-        }
-
-        p {
-            color: #aaa;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 16px 24px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn:disabled {
-            background: #444;
-            color: #888;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            box-shadow: none;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 123, 255, 0.1);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        #account-box {
-            animation: fadeIn 0.5s ease;
-        }
-
-        .creds-box {
-            background: #000;
-            border: 1px dashed var(--accent);
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 16px;
-            color: var(--accent);
-            word-break: break-all;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .copy-btn {
-            background: var(--success);
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-        }
-
-        footer {
-            margin-top: auto;
-            padding-top: 40px;
-            text-align: center;
-            font-size: 12px;
-            color: #555;
-            width: 100%;
-        }
-
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .timer-display {
-            font-size: 24px;
-            font-family: monospace;
-            color: #ff9800;
-            margin: 10px 0 20px 0;
-            font-weight: bold;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .status-msg {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #777;
-            min-height: 20px;
+        .btn-primary {
+            background-color: var(--tg-button);
+            color: var(--tg-button-text);
         }
     </style>
 </head>
-<body>
+<body class="font-sans min-h-screen flex flex-col p-4">
 
-    <header>
-        <h1>D-TECH</h1>
-        <h3>PREMIUM REWARDS</h3>
-    </header>
-
-    <div id="stats-bar">
-        Stock: <span id="stock-count">...</span> Accounts Available
-    </div>
-
-    <!-- MAIN INTERACTION AREA -->
-    <div class="container" id="main-interface">
-        <p>Unlock a Premium Account instantly by watching a short ad.</p>
-
-        <div id="ad-instruction" class="hidden" style="color: #ff9800; font-weight: bold; border: 1px solid #ff9800; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; background: rgba(255, 152, 0, 0.1);">
-            ⚠️ VERIFICATION REQUIRED:<br>
-            You must click the blue <b>"Continue"</b> button on the ad to unlock the reward!
+    <!-- App Container -->
+    <div x-data="downloader()" x-init="initApp()" class="max-w-md mx-auto w-full flex-grow flex flex-col">
+        
+        <!-- Header -->
+        <div class="text-center mt-6 mb-8">
+            <h1 class="text-2xl font-bold mb-2">Video Saver</h1>
+            <p class="text-sm opacity-60">Paste a link to download instantly</p>
         </div>
 
-        <!-- Dynamic Action Buttons will be injected here -->
-        <div id="action-area">
-            <button class="btn" onclick="checkStateAndInit()">Loading...</button>
+        <!-- Input Section -->
+        <div class="flex flex-col gap-4 mb-6">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none opacity-50">
+                    <i class="fa-solid fa-link"></i>
+                </div>
+                <input 
+                    type="url" 
+                    x-model="url" 
+                    placeholder="Paste URL here..." 
+                    class="input-box w-full pl-10 pr-4 py-3.5 rounded-xl outline-none focus:ring-2 ring-blue-500/50 transition-all border-none shadow-sm"
+                >
+            </div>
+
+            <button 
+                @click="fetchInfo" 
+                :disabled="loading || !url"
+                class="btn-primary w-full py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50"
+            >
+                <template x-if="loading">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                </template>
+                <template x-if="!loading">
+                    <span>Analyze Link</span>
+                </template>
+            </button>
         </div>
 
-        <div id="status" class="status-msg"></div>
+        <!-- Error Message -->
+        <div x-show="error" x-transition class="mb-6 p-4 rounded-xl bg-red-100 text-red-700 flex items-start gap-3 border border-red-200">
+            <i class="fa-solid fa-circle-exclamation mt-1"></i>
+            <p class="text-sm" x-text="error"></p>
+        </div>
+
+        <!-- Result Card -->
+        <template x-if="videoData">
+            <div class="input-box rounded-xl overflow-hidden shadow-sm animate-fade-in-up">
+                
+                <!-- Thumbnail -->
+                <div class="relative aspect-video bg-black">
+                    <img :src="videoData.thumbnail" class="w-full h-full object-contain opacity-90">
+                    
+                    <!-- Method Badge -->
+                    <div class="absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold text-white bg-black/60 backdrop-blur-md flex items-center gap-1">
+                        <template x-if="videoData.method === 'proxy'">
+                            <span><i class="fa-solid fa-server"></i> Server DL</span>
+                        </template>
+                        <template x-if="videoData.method === 'direct'">
+                            <span><i class="fa-solid fa-bolt"></i> Direct DL</span>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg mb-1 line-clamp-2" x-text="videoData.title"></h3>
+                    
+                    <div class="flex items-center gap-2 text-xs opacity-60 mb-5">
+                        <span class="uppercase bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded font-bold" x-text="videoData.ext"></span>
+                        <span>•</span>
+                        <span class="capitalize" x-text="videoData.platform"></span>
+                    </div>
+
+                    <!-- Download Button -->
+                    <button 
+                        @click="downloadVideo"
+                        class="btn-primary w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                    >
+                        <i class="fa-solid fa-download"></i>
+                        <span>Download Video</span>
+                    </button>
+
+                    <p class="text-xs text-center mt-3 opacity-50" 
+                       x-text="videoData.method === 'proxy' ? 'Processing on server...' : 'Downloading directly from source'">
+                    </p>
+                </div>
+            </div>
+        </template>
+
+        <!-- Footer Info -->
+        <div x-show="!videoData && !loading" class="mt-auto text-center p-4">
+            <div class="text-xs opacity-40 space-y-1">
+                <p>Supports TikTok, YouTube, Instagram, X, Pinterest</p>
+                <p>v2.0 Hybrid Engine</p>
+            </div>
+        </div>
+
     </div>
-
-    <!-- ACCOUNT REVEAL AREA -->
-    <div class="container hidden" id="account-box">
-        <p style="color: white; margin-bottom: 10px;">Your Premium Account:</p>
-
-        <div class="creds-box" id="creds-display">...</div>
-
-        <button class="copy-btn" onclick="copyAndOpen()">
-            <span>Copy & Open</span>
-        </button>
-
-        <p style="font-size: 12px; margin-top: 15px; margin-bottom: 5px;">
-            This creates a link to open an external offer.
-        </p>
-
-        <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 20px;">
-            Get Another
-        </button>
-    </div>
-
-    <footer>
-        <p>
-            Join <a href="https://t.me/DTECHX24" target="_blank">DTECHX24 Channel</a><br>
-            Chat with <a href="https://t.me/PREASX24" target="_blank">@PREASX24</a>
-        </p>
-        <p style="opacity: 0.5;">MADE BY PREASX24</p>
-    </footer>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        function downloader() {
+            return {
+                url: '',
+                loading: false,
+                error: null,
+                videoData: null,
 
-        // --- CONFIG ---
-        const DIRECT_AD_URLS = [
-            "https://otieu.com/4/9515888",
-            "https://otieu.com/4/10205357",
-            "https://otieu.com/4/10250311"
-        ];
-
-        // --- STATE MANAGEMENT ---
-        let claimCount = parseInt(localStorage.getItem('dtech_claimCount')) || 0;
-        let lastClaimTime = parseInt(localStorage.getItem('dtech_lastClaimTime')) || 0;
-        let currentCredentials = "";
-        let timerInterval = null;
-
-        // --- INITIALIZATION ---
-        async function init() {
-            // Fetch Stats
-            try {
-                const res = await fetch('/api/get-stats');
-                const data = await res.json();
-                if(data.success) {
-                    document.getElementById('stock-count').innerText = data.count;
-                } else {
-                    document.getElementById('stock-count').innerText = "0";
-                }
-            } catch(e) {
-                console.error("Stats error", e);
-            }
-
-            renderInterface();
-
-            // Start Timer Loop if needed
-            setInterval(() => {
-                if (document.getElementById('timer')) {
-                    updateTimerDisplay();
-                }
-            }, 1000);
-        }
-
-        function renderInterface() {
-            const actionArea = document.getElementById('action-area');
-            const now = Date.now();
-            const cooldownMs = claimCount * 60 * 60 * 1000; // minutes * 60 * 1000
-            const unlockTime = lastClaimTime + cooldownMs;
-            const remaining = unlockTime - now;
-
-            // Level 0 (First time): 1 Ad, No wait.
-            if (claimCount === 0) {
-                actionArea.innerHTML = `
-                    <button class="btn" onclick="startAdFlow(1, false)">Unlock Account (1 Ad)</button>
-                `;
-                return;
-            }
-
-            // Level > 0
-            const skipAdCount = Math.pow(2, claimCount);
-
-            if (remaining > 0) {
-                // Cooldown Active
-                actionArea.innerHTML = `
-                    <div id="timer" class="timer-display">Wait...</div>
-                    <p style="font-size:13px; margin: 10px 0;">Wait for the timer OR watch extra ads to skip.</p>
-                    <button class="btn" onclick="startAdFlow(${skipAdCount}, true)">
-                        Skip Wait & Watch ${skipAdCount} Ads
-                    </button>
-                    <button class="btn btn-secondary" disabled>
-                        Wait for Timer (1 Ad)
-                    </button>
-                `;
-                updateTimerDisplay();
-            } else {
-                // Cooldown Finished
-                actionArea.innerHTML = `
-                    <p style="font-size:13px; margin-bottom:15px; color: var(--success);">Cooldown Complete!</p>
-                    <button class="btn" onclick="startAdFlow(1, false)">Unlock Account (1 Ad)</button>
-                `;
-            }
-        }
-
-        function updateTimerDisplay() {
-            const now = Date.now();
-            const cooldownMs = claimCount * 60 * 60 * 1000;
-            const unlockTime = lastClaimTime + cooldownMs;
-            let remaining = Math.ceil((unlockTime - now) / 1000);
-
-            const timerEl = document.getElementById('timer');
-            if (!timerEl) return;
-
-            if (remaining <= 0) {
-                renderInterface(); // Refresh to show unlock button
-                return;
-            }
-
-            const h = Math.floor(remaining / 3600);
-            const m = Math.floor((remaining % 3600) / 60);
-            const s = remaining % 60;
-            
-            let text = "";
-            if (h > 0) text += h + "h ";
-            text += m + "m " + s + "s";
-            
-            timerEl.innerText = text;
-        }
-
-        // --- AD LOGIC ---
-
-        function startAdFlow(adsNeeded, isSkip) {
-            const status = document.getElementById('status');
-            status.innerText = `Preparing to show ${adsNeeded} ad(s)...`;
-            
-            // Show permanent instruction
-            const instructionEl = document.getElementById('ad-instruction');
-            if (instructionEl) instructionEl.classList.remove('hidden');
-
-            // Recursive chain
-            processAd(adsNeeded, 0, () => {
-                // All ads done
-                if (instructionEl) instructionEl.classList.add('hidden');
-                status.innerText = "Generating Account...";
-                fetchAccount(isSkip);
-            });
-        }
-
-        function processAd(total, current, onComplete, retryCount = 0) {
-            const status = document.getElementById('status');
-            status.innerText = `Loading Ad ${current + 1} of ${total}...`;
-
-            // Dev bypass
-            const isBypass = window.location.search.includes('bypass=true') || window.location.hash.includes('bypass=true');
-            console.log("Ad Process: Bypass check:", isBypass, window.location.href);
-
-            if (isBypass) {
-                 setTimeout(() => {
-                    if (current + 1 >= total) {
-                        onComplete();
-                    } else {
-                        processAd(total, current + 1, onComplete);
+                initApp() {
+                    // Initialize Telegram WebApp
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        const tg = window.Telegram.WebApp;
+                        tg.ready();
+                        tg.expand();
                     }
-                }, 1000);
-                return;
-            }
+                },
 
-            // Verification State
-            let hasInteracted = false;
-            const interactionHandler = () => {
-                if (document.hidden) {
-                    hasInteracted = true;
-                    console.log("Verification: Interaction detected (Hidden/Blur)");
-                }
-            };
+                async fetchInfo() {
+                    if (!this.url) return;
+                    
+                    this.loading = true;
+                    this.error = null;
+                    this.videoData = null;
 
-            // Listen for tab switch/blur which happens when clicking 'Continue' (opens new tab)
-            document.addEventListener("visibilitychange", interactionHandler);
-            window.addEventListener("blur", () => { hasInteracted = true; });
+                    try {
+                        // POST to current server
+                        const response = await fetch('/api/info', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ url: this.url })
+                        });
 
-            if (typeof show_10266375 === 'function') {
-                show_10266375().then(() => {
-                    // Ad Closed - Verify Interaction
-                    document.removeEventListener("visibilitychange", interactionHandler);
+                        const data = await response.json();
 
-                    // Allow small grace period for blur to register if it hasn't yet
-                    setTimeout(() => {
-                        if (hasInteracted) {
-                            // Success
-                            if (current + 1 >= total) {
-                                onComplete();
-                            } else {
-                                status.innerText = "Verified! Next ad in 1 second...";
-                                setTimeout(() => {
-                                    processAd(total, current + 1, onComplete);
-                                }, 1000);
-                            }
+                        if (data.success) {
+                            this.videoData = data;
                         } else {
-                            // Failed Verification
-                            console.log("Verification Failed: No interaction detected.");
-                            status.innerHTML = `<span style="color:red">Verification Failed!</span><br>You must click the blue <b>Continue</b> button on the ad.`;
-
-                            // Reset UI after delay so they can try again
-                            setTimeout(() => {
-                                alert("Verification Failed!\n\nYou must click the blue 'Continue' button on the ad to proceed.\n\nPlease try again.");
-                                renderInterface(); // Reset to start
-                                const instructionEl = document.getElementById('ad-instruction');
-                                if (instructionEl) instructionEl.classList.add('hidden');
-                            }, 1000);
+                            this.error = data.error || "Failed to fetch video info.";
                         }
-                    }, 500);
-
-                }).catch(e => {
-                    console.error(e);
-                    document.removeEventListener("visibilitychange", interactionHandler);
-
-                    if (retryCount < 2) {
-                        status.innerText = "Ad failed to load. Retrying...";
-                        setTimeout(() => {
-                            processAd(total, current, onComplete, retryCount + 1);
-                        }, 2000);
-                    } else {
-                         status.innerText = "No ads available. Please try again later.";
-                         renderInterface();
-                         const instructionEl = document.getElementById('ad-instruction');
-                         if (instructionEl) instructionEl.classList.add('hidden');
+                    } catch (err) {
+                        this.error = "Connection failed. Please try again.";
+                        console.error(err);
+                    } finally {
+                        this.loading = false;
                     }
-                });
-            } else {
-                // Fallback for dev/test without SDK
-                console.warn("Moneytag SDK not found. Simulating ad.");
-                // For local testing without SDK, we can't really verify clicks easily unless we force it.
-                // We'll auto-pass for now to not break dev, or we could require manual tab switch.
-                // Let's require manual tab switch for testing if not bypassed!
+                },
 
-                status.innerText = "DEV: Switch tabs now to simulate click...";
+                downloadVideo() {
+                    if (!this.videoData) return;
 
-                setTimeout(() => {
-                    document.removeEventListener("visibilitychange", interactionHandler);
-                    // Check if dev switched tabs
-                    if (hasInteracted) {
-                        if (current + 1 >= total) {
-                            onComplete();
-                        } else {
-                            processAd(total, current + 1, onComplete);
-                        }
-                    } else {
-                        // In dev without SDK, let's just pass it to avoid annoyance unless strict testing needed
-                        console.warn("DEV: No interaction, but passing anyway for local test without SDK.");
-                        if (current + 1 >= total) {
-                            onComplete();
-                        } else {
-                            processAd(total, current + 1, onComplete);
-                        }
+                    // Haptic Feedback for Telegram
+                    if (window.Telegram?.WebApp?.HapticFeedback) {
+                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                     }
-                }, 3000);
-            }
-        }
 
-        // --- API CALLS ---
-
-        async function fetchAccount(isSkip) {
-            try {
-                const response = await fetch('/api/get-account');
-                const data = await response.json();
-
-                if (data.success) {
-                    // Success!
-                    // Update State
-                    claimCount++;
-                    lastClaimTime = Date.now();
-
-                    localStorage.setItem('dtech_claimCount', claimCount);
-                    localStorage.setItem('dtech_lastClaimTime', lastClaimTime);
-
-                    // Show Result
-                    currentCredentials = data.credentials; // Only email:pass
-
-                    // Show full line in box? User asked for "copies the email:pass... that's the only think you copy".
-                    // But visually maybe they want to see the status?
-                    // I'll show the whole line but copy only creds.
-                    document.getElementById('creds-display').innerText = data.account;
-
-                    document.getElementById("main-interface").classList.add("hidden");
-                    document.getElementById("account-box").classList.remove("hidden");
-                    document.getElementById("status").innerText = "";
-
-                } else {
-                    document.getElementById("status").innerText = "Error: " + data.error;
+                    if (this.videoData.method === 'proxy') {
+                        // Redirect to the proxy download endpoint
+                        // Using window.location.href ensures the browser handles the file stream
+                        const encodedUrl = encodeURIComponent(this.videoData.original_url);
+                        window.location.href = `/api/proxy_download?url=${encodedUrl}`;
+                    } else {
+                        // Open direct link
+                        window.open(this.videoData.download_url, '_blank');
+                    }
                 }
-            } catch (e) {
-                document.getElementById("status").innerText = "Server Error. Try again later.";
             }
         }
-
-        // --- CLIPBOARD & LINK ---
-
-        function copyAndOpen() {
-            // 1. Copy to Clipboard
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(currentCredentials).then(() => {
-                    tg.showPopup({ title: 'Copied!', message: 'Credentials copied.', buttons: [{type: 'ok'}] });
-                }).catch(err => {
-                    console.error("Copy failed", err);
-                    // Fallback
-                    fallbackCopy(currentCredentials);
-                });
-            } else {
-                fallbackCopy(currentCredentials);
-            }
-
-            // 2. Open External Ad
-            const randomUrl = DIRECT_AD_URLS[Math.floor(Math.random() * DIRECT_AD_URLS.length)];
-
-            // Try to open in new tab
-            const win = window.open(randomUrl, '_blank');
-            if (win) {
-                win.focus();
-            } else {
-                // If blocked, maybe redirect? User asked to "open one of this... same time".
-                // Often popups are blocked.
-                // We can try location.href if window.open fails, but that replaces the app.
-                // Telegram Mini App handles window.open usually.
-                tg.openLink(randomUrl); // Telegram WebApp method
-            }
-        }
-
-        function fallbackCopy(text) {
-             const textArea = document.createElement("textarea");
-             textArea.value = text;
-             document.body.appendChild(textArea);
-             textArea.select();
-             try {
-                 document.execCommand('copy');
-                 tg.showPopup({ title: 'Copied!', message: 'Credentials copied.', buttons: [{type: 'ok'}] });
-             } catch (err) {
-                 console.error('Fallback copy failed', err);
-             }
-             document.body.removeChild(textArea);
-        }
-
-        // Start
-        init();
-
     </script>
 </body>
 </html>
