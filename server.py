@@ -64,9 +64,11 @@ def get_info():
 
     # 1. Decision Logic: Direct or Proxy?
     # YouTube usually requires Proxy (Server download) due to IP restrictions.
-    # Most others (TikTok, Reddit, X) work with Direct links.
+    # However, we now prioritize Direct links and offer Proxy as a backup.
     is_youtube = "youtube.com" in url or "youtu.be" in url
-    method = "proxy" if is_youtube else "direct"
+
+    # We default to direct, but flag if proxy is available/recommended as backup
+    supports_proxy = is_youtube
 
     opts = get_ydl_opts(basic=True)
 
@@ -81,7 +83,8 @@ def get_info():
                 "download_url": info.get('url'), # The direct stream URL
                 "platform": info.get('extractor_key'),
                 "ext": info.get('ext', 'mp4'),
-                "method": method, 
+                "method": "direct",
+                "supports_proxy": supports_proxy,
                 "original_url": url
             })
     except Exception as e:
