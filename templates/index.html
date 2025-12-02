@@ -210,6 +210,11 @@
     <div class="container" id="main-interface">
         <p>Unlock a Premium Account instantly by watching a short ad.</p>
 
+        <div id="ad-instruction" class="hidden" style="color: #ff9800; font-weight: bold; border: 1px solid #ff9800; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; background: rgba(255, 152, 0, 0.1);">
+            ⚠️ VERIFICATION REQUIRED:<br>
+            You must click the blue <b>"Continue"</b> button on the ad to unlock the reward!
+        </div>
+
         <!-- Dynamic Action Buttons will be injected here -->
         <div id="action-area">
             <button class="btn" onclick="checkStateAndInit()">Loading...</button>
@@ -358,9 +363,14 @@
             const status = document.getElementById('status');
             status.innerText = `Preparing to show ${adsNeeded} ad(s)...`;
             
+            // Show permanent instruction
+            const instructionEl = document.getElementById('ad-instruction');
+            if (instructionEl) instructionEl.classList.remove('hidden');
+
             // Recursive chain
             processAd(adsNeeded, 0, () => {
                 // All ads done
+                if (instructionEl) instructionEl.classList.add('hidden');
                 status.innerText = "Generating Account...";
                 fetchAccount(isSkip);
             });
@@ -385,19 +395,55 @@
                 return;
             }
 
+            // Verification State
+            let hasInteracted = false;
+            const interactionHandler = () => {
+                if (document.hidden) {
+                    hasInteracted = true;
+                    console.log("Verification: Interaction detected (Hidden/Blur)");
+                }
+            };
+
+            // Listen for tab switch/blur which happens when clicking 'Continue' (opens new tab)
+            document.addEventListener("visibilitychange", interactionHandler);
+            window.addEventListener("blur", () => { hasInteracted = true; });
+
             if (typeof show_10266375 === 'function') {
                 show_10266375().then(() => {
-                    // Ad Watched
-                    if (current + 1 >= total) {
-                        onComplete();
-                    } else {
-                        status.innerText = "Next ad in 1 second...";
-                        setTimeout(() => {
-                            processAd(total, current + 1, onComplete);
-                        }, 1000);
-                    }
+                    // Ad Closed - Verify Interaction
+                    document.removeEventListener("visibilitychange", interactionHandler);
+
+                    // Allow small grace period for blur to register if it hasn't yet
+                    setTimeout(() => {
+                        if (hasInteracted) {
+                            // Success
+                            if (current + 1 >= total) {
+                                onComplete();
+                            } else {
+                                status.innerText = "Verified! Next ad in 1 second...";
+                                setTimeout(() => {
+                                    processAd(total, current + 1, onComplete);
+                                }, 1000);
+                            }
+                        } else {
+                            // Failed Verification
+                            console.log("Verification Failed: No interaction detected.");
+                            status.innerHTML = `<span style="color:red">Verification Failed!</span><br>You must click the blue <b>Continue</b> button on the ad.`;
+
+                            // Reset UI after delay so they can try again
+                            setTimeout(() => {
+                                alert("Verification Failed!\n\nYou must click the blue 'Continue' button on the ad to proceed.\n\nPlease try again.");
+                                renderInterface(); // Reset to start
+                                const instructionEl = document.getElementById('ad-instruction');
+                                if (instructionEl) instructionEl.classList.add('hidden');
+                            }, 1000);
+                        }
+                    }, 500);
+
                 }).catch(e => {
                     console.error(e);
+                    document.removeEventListener("visibilitychange", interactionHandler);
+
                     if (retryCount < 2) {
                         status.innerText = "Ad failed to load. Retrying...";
                         setTimeout(() => {
@@ -405,20 +451,39 @@
                         }, 2000);
                     } else {
                          status.innerText = "No ads available. Please try again later.";
-                         // Reset buttons
                          renderInterface();
+                         const instructionEl = document.getElementById('ad-instruction');
+                         if (instructionEl) instructionEl.classList.add('hidden');
                     }
                 });
             } else {
                 // Fallback for dev/test without SDK
                 console.warn("Moneytag SDK not found. Simulating ad.");
+                // For local testing without SDK, we can't really verify clicks easily unless we force it.
+                // We'll auto-pass for now to not break dev, or we could require manual tab switch.
+                // Let's require manual tab switch for testing if not bypassed!
+
+                status.innerText = "DEV: Switch tabs now to simulate click...";
+
                 setTimeout(() => {
-                    if (current + 1 >= total) {
-                        onComplete();
+                    document.removeEventListener("visibilitychange", interactionHandler);
+                    // Check if dev switched tabs
+                    if (hasInteracted) {
+                        if (current + 1 >= total) {
+                            onComplete();
+                        } else {
+                            processAd(total, current + 1, onComplete);
+                        }
                     } else {
-                        processAd(total, current + 1, onComplete);
+                        // In dev without SDK, let's just pass it to avoid annoyance unless strict testing needed
+                        console.warn("DEV: No interaction, but passing anyway for local test without SDK.");
+                        if (current + 1 >= total) {
+                            onComplete();
+                        } else {
+                            processAd(total, current + 1, onComplete);
+                        }
                     }
-                }, 2000);
+                }, 3000);
             }
         }
 
