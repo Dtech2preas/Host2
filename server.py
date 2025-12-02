@@ -80,6 +80,19 @@ recycler_thread.start()
 def index():
     return render_template('index.html')
 
+@app.route('/api/get-stats', methods=['GET'])
+def get_stats():
+    try:
+        if not os.path.exists(FILE_HITS):
+            return jsonify({"success": True, "count": 0})
+
+        with open(FILE_HITS, 'r') as f:
+            count = sum(1 for line in f if line.strip())
+
+        return jsonify({"success": True, "count": count})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route('/api/get-account', methods=['GET'])
 def get_account():
     try:
@@ -94,10 +107,10 @@ def get_account():
             return jsonify({"success": False, "error": "Out of Stock"}), 404
 
         # 2. Pick a random account
-        selected_account = random.choice(lines)
+        selected_account_line = random.choice(lines)
 
         # 3. Remove it from hits.txt
-        lines.remove(selected_account)
+        lines.remove(selected_account_line)
         with open(FILE_HITS, 'w') as f:
             for line in lines:
                 f.write(f"{line}\n")
@@ -105,10 +118,21 @@ def get_account():
         # 4. Add to temp_used.txt with current Timestamp
         current_ts = time.time()
         with open(FILE_TEMP, 'a') as f:
-            f.write(f"{current_ts}|{selected_account}\n")
+            f.write(f"{current_ts}|{selected_account_line}\n")
 
-        # 5. Send to user
-        return jsonify({"success": True, "account": selected_account})
+        # 5. Parse Credentials
+        # Format: email:pass | other | info
+        credentials = selected_account_line
+        if "|" in selected_account_line:
+            parts = selected_account_line.split("|")
+            credentials = parts[0].strip()
+
+        # 6. Send to user
+        return jsonify({
+            "success": True,
+            "account": selected_account_line,
+            "credentials": credentials
+        })
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

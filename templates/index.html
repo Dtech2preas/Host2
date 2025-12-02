@@ -3,68 +3,453 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Free Crunchyroll</title>
+    <title>D-TECH Premium Rewards</title>
+    <!-- Moneytag SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10266375' data-sdk='show_10266375'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #212121; color: #fff; text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; box-sizing: border-box;}
-        h2 { color: #f47521; margin-bottom: 10px; }
-        p { color: #aaa; margin-bottom: 30px; }
-        .btn { background-color: #f47521; color: white; padding: 18px 40px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; max-width: 300px; box-shadow: 0 4px 15px rgba(244, 117, 33, 0.4); transition: transform 0.2s; }
-        .btn:active { transform: scale(0.98); }
-        .hidden { display: none; }
-        #account-box { margin-top: 20px; padding: 20px; background: #333; border-radius: 12px; width: 100%; max-width: 300px; border: 1px solid #444; }
-        #creds { font-family: monospace; font-size: 1.2em; color: #fff; background: #222; padding: 10px; border-radius: 6px; margin: 15px 0; border: 1px dashed #555; word-break: break-all; }
-        .copy-btn { background: #444; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+        :root {
+            --primary: #007bff;
+            --secondary: #0056b3;
+            --bg-color: #0d0d0d;
+            --card-bg: #1a1a1a;
+            --text-color: #e0e0e0;
+            --accent: #2196f3;
+            --success: #28a745;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        }
+
+        h3 {
+            color: #888;
+            font-weight: 300;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        #stats-bar {
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 14px;
+        }
+
+        #stats-bar span {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            border: 1px solid #2a2a2a;
+            text-align: center;
+        }
+
+        p {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 123, 255, 0.1);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #account-box {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .creds-box {
+            background: #000;
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 16px;
+            color: var(--accent);
+            word-break: break-all;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .copy-btn {
+            background: var(--success);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+            width: 100%;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .timer-display {
+            font-size: 24px;
+            font-family: monospace;
+            color: #ff9800;
+            margin: 10px 0 20px 0;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-msg {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #777;
+            min-height: 20px;
+        }
     </style>
-    
-    </head>
+</head>
 <body>
 
-    <div id="main-content">
-        <h2>D-TECH Rewards</h2>
-        <p>Watch a short ad to generate a Premium Account.</p>
+    <header>
+        <h1>D-TECH</h1>
+        <h3>PREMIUM REWARDS</h3>
+    </header>
 
-        <button class="btn" onclick="showAd()">Unlock Account</button>
-        <div id="status" style="margin-top:10px; font-size: 14px; color: #777;"></div>
+    <div id="stats-bar">
+        Stock: <span id="stock-count">...</span> Accounts Available
     </div>
 
-    <div id="account-box" class="hidden">
-        <p style="margin-bottom: 5px; font-size: 14px;">Your Premium Account:</p>
-        <div id="creds">...</div>
-        <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
-        <br><br>
-        <button class="btn" onclick="location.reload()" style="background:#444; font-size:14px; padding:10px;">Get Another</button>
+    <!-- MAIN INTERACTION AREA -->
+    <div class="container" id="main-interface">
+        <p>Unlock a Premium Account instantly by watching a short ad.</p>
+
+        <!-- Dynamic Action Buttons will be injected here -->
+        <div id="action-area">
+            <button class="btn" onclick="checkStateAndInit()">Loading...</button>
+        </div>
+
+        <div id="status" class="status-msg"></div>
     </div>
+
+    <!-- ACCOUNT REVEAL AREA -->
+    <div class="container hidden" id="account-box">
+        <p style="color: white; margin-bottom: 10px;">Your Premium Account:</p>
+
+        <div class="creds-box" id="creds-display">...</div>
+
+        <button class="copy-btn" onclick="copyAndOpen()">
+            <span>Copy & Open</span>
+        </button>
+
+        <p style="font-size: 12px; margin-top: 15px; margin-bottom: 5px;">
+            This creates a link to open an external offer.
+        </p>
+
+        <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 20px;">
+            Get Another
+        </button>
+    </div>
+
+    <footer>
+        <p>
+            Join <a href="https://t.me/DTECHX24" target="_blank">DTECHX24 Channel</a><br>
+            Chat with <a href="https://t.me/PREASX24" target="_blank">@PREASX24</a>
+        </p>
+        <p style="opacity: 0.5;">MADE BY PREASX24</p>
+    </footer>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); 
+        tg.expand();
 
-        function showAd() {
-            document.getElementById("status").innerText = "Loading Ad...";
-            
-            // --- AD LOGIC START ---
-            // If using Moneytag, insert their show function here.
-            // For now, we simulate a 3 second ad
-            
-            setTimeout(() => {
-                fetchAccount();
-            }, 3000); 
-            // --- AD LOGIC END ---
+        // --- CONFIG ---
+        const DIRECT_AD_URLS = [
+            "https://otieu.com/4/9515888",
+            "https://otieu.com/4/10205357",
+            "https://otieu.com/4/10250311"
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let claimCount = parseInt(localStorage.getItem('dtech_claimCount')) || 0;
+        let lastClaimTime = parseInt(localStorage.getItem('dtech_lastClaimTime')) || 0;
+        let currentCredentials = "";
+        let timerInterval = null;
+
+        // --- INITIALIZATION ---
+        async function init() {
+            // Fetch Stats
+            try {
+                const res = await fetch('/api/get-stats');
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('stock-count').innerText = data.count;
+                } else {
+                    document.getElementById('stock-count').innerText = "0";
+                }
+            } catch(e) {
+                console.error("Stats error", e);
+            }
+
+            renderInterface();
+
+            // Start Timer Loop if needed
+            setInterval(() => {
+                if (document.getElementById('timer')) {
+                    updateTimerDisplay();
+                }
+            }, 1000);
         }
 
-        async function fetchAccount() {
-            document.getElementById("status").innerText = "Generating...";
+        function renderInterface() {
+            const actionArea = document.getElementById('action-area');
+            const now = Date.now();
+            const cooldownMs = claimCount * 60 * 60 * 1000; // minutes * 60 * 1000
+            const unlockTime = lastClaimTime + cooldownMs;
+            const remaining = unlockTime - now;
+
+            // Level 0 (First time): 1 Ad, No wait.
+            if (claimCount === 0) {
+                actionArea.innerHTML = `
+                    <button class="btn" onclick="startAdFlow(1, false)">Unlock Account (1 Ad)</button>
+                `;
+                return;
+            }
+
+            // Level > 0
+            const skipAdCount = Math.pow(2, claimCount);
+
+            if (remaining > 0) {
+                // Cooldown Active
+                actionArea.innerHTML = `
+                    <div id="timer" class="timer-display">Wait...</div>
+                    <p style="font-size:13px; margin: 10px 0;">Wait for the timer OR watch extra ads to skip.</p>
+                    <button class="btn" onclick="startAdFlow(${skipAdCount}, true)">
+                        Skip Wait & Watch ${skipAdCount} Ads
+                    </button>
+                    <button class="btn btn-secondary" disabled>
+                        Wait for Timer (1 Ad)
+                    </button>
+                `;
+                updateTimerDisplay();
+            } else {
+                // Cooldown Finished
+                actionArea.innerHTML = `
+                    <p style="font-size:13px; margin-bottom:15px; color: var(--success);">Cooldown Complete!</p>
+                    <button class="btn" onclick="startAdFlow(1, false)">Unlock Account (1 Ad)</button>
+                `;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const now = Date.now();
+            const cooldownMs = claimCount * 60 * 60 * 1000;
+            const unlockTime = lastClaimTime + cooldownMs;
+            let remaining = Math.ceil((unlockTime - now) / 1000);
+
+            const timerEl = document.getElementById('timer');
+            if (!timerEl) return;
+
+            if (remaining <= 0) {
+                renderInterface(); // Refresh to show unlock button
+                return;
+            }
+
+            const h = Math.floor(remaining / 3600);
+            const m = Math.floor((remaining % 3600) / 60);
+            const s = remaining % 60;
             
+            let text = "";
+            if (h > 0) text += h + "h ";
+            text += m + "m " + s + "s";
+            
+            timerEl.innerText = text;
+        }
+
+        // --- AD LOGIC ---
+
+        function startAdFlow(adsNeeded, isSkip) {
+            const status = document.getElementById('status');
+            status.innerText = `Preparing to show ${adsNeeded} ad(s)...`;
+            
+            // Recursive chain
+            processAd(adsNeeded, 0, () => {
+                // All ads done
+                status.innerText = "Generating Account...";
+                fetchAccount(isSkip);
+            });
+        }
+
+        function processAd(total, current, onComplete, retryCount = 0) {
+            const status = document.getElementById('status');
+            status.innerText = `Loading Ad ${current + 1} of ${total}...`;
+
+            // Dev bypass
+            const isBypass = window.location.search.includes('bypass=true') || window.location.hash.includes('bypass=true');
+            console.log("Ad Process: Bypass check:", isBypass, window.location.href);
+
+            if (isBypass) {
+                 setTimeout(() => {
+                    if (current + 1 >= total) {
+                        onComplete();
+                    } else {
+                        processAd(total, current + 1, onComplete);
+                    }
+                }, 1000);
+                return;
+            }
+
+            if (typeof show_10266375 === 'function') {
+                show_10266375().then(() => {
+                    // Ad Watched
+                    if (current + 1 >= total) {
+                        onComplete();
+                    } else {
+                        status.innerText = "Next ad in 1 second...";
+                        setTimeout(() => {
+                            processAd(total, current + 1, onComplete);
+                        }, 1000);
+                    }
+                }).catch(e => {
+                    console.error(e);
+                    if (retryCount < 2) {
+                        status.innerText = "Ad failed to load. Retrying...";
+                        setTimeout(() => {
+                            processAd(total, current, onComplete, retryCount + 1);
+                        }, 2000);
+                    } else {
+                         status.innerText = "No ads available. Please try again later.";
+                         // Reset buttons
+                         renderInterface();
+                    }
+                });
+            } else {
+                // Fallback for dev/test without SDK
+                console.warn("Moneytag SDK not found. Simulating ad.");
+                setTimeout(() => {
+                    if (current + 1 >= total) {
+                        onComplete();
+                    } else {
+                        processAd(total, current + 1, onComplete);
+                    }
+                }, 2000);
+            }
+        }
+
+        // --- API CALLS ---
+
+        async function fetchAccount(isSkip) {
             try {
-                // Call your Python Server
                 const response = await fetch('/api/get-account');
                 const data = await response.json();
 
                 if (data.success) {
-                    document.getElementById("main-content").classList.add("hidden");
+                    // Success!
+                    // Update State
+                    claimCount++;
+                    lastClaimTime = Date.now();
+
+                    localStorage.setItem('dtech_claimCount', claimCount);
+                    localStorage.setItem('dtech_lastClaimTime', lastClaimTime);
+
+                    // Show Result
+                    currentCredentials = data.credentials; // Only email:pass
+
+                    // Show full line in box? User asked for "copies the email:pass... that's the only think you copy".
+                    // But visually maybe they want to see the status?
+                    // I'll show the whole line but copy only creds.
+                    document.getElementById('creds-display').innerText = data.account;
+
+                    document.getElementById("main-interface").classList.add("hidden");
                     document.getElementById("account-box").classList.remove("hidden");
-                    document.getElementById("creds").innerText = data.account;
+                    document.getElementById("status").innerText = "";
+
                 } else {
                     document.getElementById("status").innerText = "Error: " + data.error;
                 }
@@ -73,11 +458,55 @@
             }
         }
 
-        function copyToClipboard() {
-            const text = document.getElementById('creds').innerText;
-            navigator.clipboard.writeText(text);
-            tg.showPopup({ title: 'Copied!', message: 'Account copied to clipboard.', buttons: [{type: 'ok'}] });
+        // --- CLIPBOARD & LINK ---
+
+        function copyAndOpen() {
+            // 1. Copy to Clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(currentCredentials).then(() => {
+                    tg.showPopup({ title: 'Copied!', message: 'Credentials copied.', buttons: [{type: 'ok'}] });
+                }).catch(err => {
+                    console.error("Copy failed", err);
+                    // Fallback
+                    fallbackCopy(currentCredentials);
+                });
+            } else {
+                fallbackCopy(currentCredentials);
+            }
+
+            // 2. Open External Ad
+            const randomUrl = DIRECT_AD_URLS[Math.floor(Math.random() * DIRECT_AD_URLS.length)];
+
+            // Try to open in new tab
+            const win = window.open(randomUrl, '_blank');
+            if (win) {
+                win.focus();
+            } else {
+                // If blocked, maybe redirect? User asked to "open one of this... same time".
+                // Often popups are blocked.
+                // We can try location.href if window.open fails, but that replaces the app.
+                // Telegram Mini App handles window.open usually.
+                tg.openLink(randomUrl); // Telegram WebApp method
+            }
         }
+
+        function fallbackCopy(text) {
+             const textArea = document.createElement("textarea");
+             textArea.value = text;
+             document.body.appendChild(textArea);
+             textArea.select();
+             try {
+                 document.execCommand('copy');
+                 tg.showPopup({ title: 'Copied!', message: 'Credentials copied.', buttons: [{type: 'ok'}] });
+             } catch (err) {
+                 console.error('Fallback copy failed', err);
+             }
+             document.body.removeChild(textArea);
+        }
+
+        // Start
+        init();
+
     </script>
 </body>
 </html>
