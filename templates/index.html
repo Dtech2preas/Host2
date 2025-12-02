@@ -6,13 +6,13 @@
     <title>Telegram Video Downloader</title>
     
     <!-- Telegram WebApp Script -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/static/telegram-web-app.js"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Alpine.js for logic -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="/static/alpine.min.js" defer></script>
     
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -76,12 +76,8 @@
                 :disabled="loading || !url"
                 class="btn-primary w-full py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50"
             >
-                <template x-if="loading">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i>
-                </template>
-                <template x-if="!loading">
-                    <span>Analyze Link</span>
-                </template>
+                <i x-show="loading" class="fa-solid fa-circle-notch fa-spin" style="display: none;"></i>
+                <span x-show="!loading">Analyze Link</span>
             </button>
         </div>
 
@@ -101,10 +97,10 @@
                     
                     <!-- Method Badge -->
                     <div class="absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold text-white bg-black/60 backdrop-blur-md flex items-center gap-1">
-                        <template x-if="videoData.method === 'proxy'">
-                            <span><i class="fa-solid fa-server"></i> Server DL</span>
+                        <template x-if="videoData.supports_proxy">
+                            <span><i class="fa-solid fa-server"></i> Proxy Available</span>
                         </template>
-                        <template x-if="videoData.method === 'direct'">
+                        <template x-if="!videoData.supports_proxy">
                             <span><i class="fa-solid fa-bolt"></i> Direct DL</span>
                         </template>
                     </div>
@@ -120,17 +116,28 @@
                         <span class="capitalize" x-text="videoData.platform"></span>
                     </div>
 
-                    <!-- Download Button -->
+                    <!-- Direct Download Button -->
                     <button 
-                        @click="downloadVideo"
-                        class="btn-primary w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                        @click="downloadDirect"
+                        class="btn-primary w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 mb-3"
                     >
-                        <i class="fa-solid fa-download"></i>
-                        <span>Download Video</span>
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Direct Download</span>
                     </button>
 
-                    <p class="text-xs text-center mt-3 opacity-50" 
-                       x-text="videoData.method === 'proxy' ? 'Processing on server...' : 'Downloading directly from source'">
+                    <!-- Proxy Download Button (Backup) -->
+                    <template x-if="videoData.supports_proxy">
+                        <button
+                            @click="downloadProxy"
+                            class="w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                        >
+                            <i class="fa-solid fa-server"></i>
+                            <span>Server Download (Backup)</span>
+                        </button>
+                    </template>
+
+                    <p class="text-xs text-center mt-3 opacity-50">
+                        Try Direct Download first to save time. Use Server Download if it fails.
                     </p>
                 </div>
             </div>
@@ -193,23 +200,29 @@
                     }
                 },
 
-                downloadVideo() {
+                downloadDirect() {
                     if (!this.videoData) return;
 
-                    // Haptic Feedback for Telegram
+                    // Haptic Feedback
                     if (window.Telegram?.WebApp?.HapticFeedback) {
                         window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                     }
 
-                    if (this.videoData.method === 'proxy') {
-                        // Redirect to the proxy download endpoint
-                        // Using window.location.href ensures the browser handles the file stream
-                        const encodedUrl = encodeURIComponent(this.videoData.original_url);
-                        window.location.href = `/api/proxy_download?url=${encodedUrl}`;
-                    } else {
-                        // Open direct link
-                        window.open(this.videoData.download_url, '_blank');
+                    // Open direct link
+                    window.open(this.videoData.download_url, '_blank');
+                },
+
+                downloadProxy() {
+                    if (!this.videoData) return;
+
+                    // Haptic Feedback
+                    if (window.Telegram?.WebApp?.HapticFeedback) {
+                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                     }
+
+                    // Redirect to the proxy download endpoint
+                    const encodedUrl = encodeURIComponent(this.videoData.original_url);
+                    window.location.href = `/api/proxy_download?url=${encodedUrl}`;
                 }
             }
         }
